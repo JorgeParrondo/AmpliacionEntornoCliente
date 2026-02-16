@@ -24,26 +24,12 @@
     <section id="libros" class="section">
         <h2>Gestión de Libros</h2>
 
-        <form id="formLibro">
+        <form id="formLibro" method="get" action="AccesoDatos.php">
             <input type="text" placeholder="Título" required>
             <input type="text" placeholder="Autor" required>
             <input type="text" placeholder="Género" required>
             <button type="submit">Añadir Libro</button>
         </form>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Autor</th>
-                    <th>Género</th>
-                    <th>Disponible</th>
-                </tr>
-            </thead>
-            <tbody id="tablaLibros">
-            </tbody>
-        </table>
     </section>
 
     <!-- SECCIÓN USUARIOS -->
