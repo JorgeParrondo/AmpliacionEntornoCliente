@@ -2,125 +2,157 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Biblioteca</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Gestión Biblioteca</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
-<div class="container">
+<main class="container">
 
-<h1>Biblioteca</h1>
+<h1>Sistema de Gestión de Biblioteca</h1>
 
-<!-- ===== SOCIOS ===== -->
-<div class="card">
-<h2>Alta Socio</h2>
-<input id="nombre" placeholder="Nombre">
-<input id="email" placeholder="Email">
-<input id="telefono" placeholder="Teléfono">
-<button onclick="crearSocio()">Crear</button>
-</div>
+<!-- ===================== -->
+<!--        SOCIOS         -->
+<!-- ===================== -->
 
-<div class="card">
-<h2>Consultar Socio</h2>
-<input id="socioId" placeholder="ID Socio">
-<button onclick="consultarSocio()">Consultar</button>
-</div>
+<section class="card">
+<h2> Gestión de Socios</h2>
 
+<fieldset>
+<legend>Alta de Socio</legend>
 
-<!-- ===== LIBROS ===== -->
-<div class="card">
-<h2>Alta Libro</h2>
-<input id="titulo" placeholder="Título">
-<input id="autor" placeholder="Autor">
-<input id="genero" placeholder="Género">
-<button onclick="crearLibro()">Crear</button>
-</div>
+<label for="nombre">Nombre</label>
+<input type="text" id="nombre" placeholder="Ej: Juan Pérez">
 
-<div class="card">
-<h2>Consultar Libro</h2>
-<input id="libroId" placeholder="ID Libro">
-<button onclick="consultarLibro()">Consultar</button>
-</div>
+<label for="email">Email</label>
+<input type="email" id="email" placeholder="Ej: juan@email.com">
+
+<label for="telefono">Teléfono</label>
+<input type="tel" id="telefono" placeholder="Ej: 600111111">
+
+<button type="button">Crear Socio</button>
+</fieldset>
 
 
-<!-- ===== PRÉSTAMOS ===== -->
-<div class="card">
-<h2>Registrar Préstamo</h2>
-<input id="prestamoSocioId" placeholder="ID Socio">
-<input id="prestamoLibroId" placeholder="ID Libro">
-<input id="fechaLimite" type="date">
-<button onclick="crearPrestamo()">Prestar</button>
-</div>
+<fieldset>
+<legend>Modificar Socio</legend>
+
+<label for="telefonoModificar">Teléfono del socio</label>
+<input type="tel" id="telefonoModificar" placeholder="Teléfono registrado">
+
+<label for="nuevoNombre">Nuevo Nombre</label>
+<input type="text" id="nuevoNombre">
+
+<label for="nuevoEmail">Nuevo Email</label>
+<input type="email" id="nuevoEmail">
+
+<button type="button">Modificar Datos</button>
+</fieldset>
 
 
-<!-- ===== DEVOLUCIONES ===== -->
-<div class="card">
-<h2>Registrar Devolución</h2>
-<input id="prestamoIdDevolver" placeholder="ID Préstamo">
-<button onclick="registrarDevolucion()">Devolver</button>
-</div>
+<fieldset>
+<legend>Consultar Socio por Teléfono</legend>
 
-</div>
+<label for="telefonoConsulta">Teléfono</label>
+<input type="tel" id="telefonoConsulta">
 
-<script>
+<button type="button">Consultar</button>
+</fieldset>
 
-function crearSocio(){
-fetch("http://localhost:3000/socios",{
-method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-nombre:nombre.value,
-email:email.value,
-telefono:telefono.value
-})
-}).then(r=>r.json()).then(d=>alert("Socio ID: "+d.id))
-}
+</section>
 
-function consultarSocio(){
-fetch("http://localhost:3000/socios/"+socioId.value)
-.then(r=>r.json())
-.then(d=>alert(JSON.stringify(d,null,2)))
-}
 
-function crearLibro(){
-fetch("http://localhost:3000/libros",{
-method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-titulo:titulo.value,
-autor:autor.value,
-genero:genero.value
-})
-}).then(r=>r.json()).then(d=>alert("Libro ID: "+d.id))
-}
 
-function consultarLibro(){
-fetch("http://localhost:3000/libros/"+libroId.value)
-.then(r=>r.json())
-.then(d=>alert(JSON.stringify(d,null,2)))
-}
+<!-- ===================== -->
+<!--        LIBROS         -->
+<!-- ===================== -->
 
-function crearPrestamo(){
-fetch("http://localhost:3000/prestamos",{
-method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-socioId:prestamoSocioId.value,
-libroId:prestamoLibroId.value,
-fechaLimite:fechaLimite.value
-})
-}).then(r=>r.json()).then(d=>alert("Préstamo ID: "+d.id))
-}
+<section class="card">
+<h2> Gestión de Libros</h2>
 
-function registrarDevolucion(){
-fetch("http://localhost:3000/devoluciones/"+prestamoIdDevolver.value,{
-method:"POST"
-})
-.then(r=>r.json())
-.then(d=>alert("Devolución registrada"))
-}
+<fieldset>
+<legend>Alta de Libro</legend>
 
-</script>
+<label for="titulo">Título</label>
+<input type="text" id="titulo">
+
+<label for="genero">Género</label>
+<input type="text" id="genero">
+
+<button type="button">Crear Libro</button>
+</fieldset>
+
+
+<fieldset>
+<legend>Consultar Libros por Género</legend>
+
+<label for="generoConsulta">Género</label>
+<input type="text" id="generoConsulta">
+
+<button type="button">Buscar Libros</button>
+</fieldset>
+
+
+<fieldset>
+<legend>Consultar Disponibilidad</legend>
+
+<label for="tituloDisponibilidad">Título del Libro</label>
+<input type="text" id="tituloDisponibilidad">
+
+<button type="button">Ver Disponibilidad</button>
+</fieldset>
+
+</section>
+
+
+
+<!-- ===================== -->
+<!--       PRÉSTAMOS       -->
+<!-- ===================== -->
+
+<section class="card">
+<h2> Gestión de Préstamos</h2>
+
+<fieldset>
+<legend>Registrar Préstamo</legend>
+
+<label for="telefonoPrestamo">Teléfono del Socio</label>
+<input type="tel" id="telefonoPrestamo">
+
+<label for="libroPrestamo">Título del Libro</label>
+<input type="text" id="libroPrestamo">
+
+<label for="fechaLimite">Fecha Límite</label>
+<input type="date" id="fechaLimite">
+
+<button type="button">Registrar Préstamo</button>
+</fieldset>
+
+
+<fieldset>
+<legend>Consultar Préstamos de un Socio</legend>
+
+<label for="telefonoPrestamos">Teléfono</label>
+<input type="tel" id="telefonoPrestamos">
+
+<button type="button">Ver Préstamos</button>
+
+<p class="info">
+Se mostrarán:
+<br>• DEVUELTOS
+<br>• NO DEVUELTOS
+<br>• VENCIDOS
+<br>• NO VENCIDOS
+</p>
+
+</fieldset>
+
+</section>
+
+
+</main>
 
 </body>
 </html>
