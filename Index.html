@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+<meta charset="UTF-8">
+<title>Biblioteca</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -9,66 +11,116 @@
 
 <h1>Biblioteca</h1>
 
+<!-- ===== SOCIOS ===== -->
 <div class="card">
-<h2>Alta Usuario</h2>
-<input id="name" placeholder="Nombre">
+<h2>Alta Socio</h2>
+<input id="nombre" placeholder="Nombre">
 <input id="email" placeholder="Email">
-<button onclick="crearUsuario()">Crear Usuario</button>
+<input id="telefono" placeholder="Teléfono">
+<button onclick="crearSocio()">Crear</button>
 </div>
 
+<div class="card">
+<h2>Consultar Socio</h2>
+<input id="socioId" placeholder="ID Socio">
+<button onclick="consultarSocio()">Consultar</button>
+</div>
+
+
+<!-- ===== LIBROS ===== -->
 <div class="card">
 <h2>Alta Libro</h2>
-<input id="title" placeholder="Titulo">
-<input id="genre" placeholder="Genero">
-<button onclick="crearLibro()">Crear Libro</button>
+<input id="titulo" placeholder="Título">
+<input id="autor" placeholder="Autor">
+<input id="genero" placeholder="Género">
+<button onclick="crearLibro()">Crear</button>
 </div>
 
 <div class="card">
-<h2>Registrar Prestamo</h2>
-<input id="uid" placeholder="ID Usuario">
-<input id="bid" placeholder="ID Libro">
-<input id="date" type="date">
-<button onclick="prestamo()">Prestar</button>
+<h2>Consultar Libro</h2>
+<input id="libroId" placeholder="ID Libro">
+<button onclick="consultarLibro()">Consultar</button>
+</div>
+
+
+<!-- ===== PRÉSTAMOS ===== -->
+<div class="card">
+<h2>Registrar Préstamo</h2>
+<input id="prestamoSocioId" placeholder="ID Socio">
+<input id="prestamoLibroId" placeholder="ID Libro">
+<input id="fechaLimite" type="date">
+<button onclick="crearPrestamo()">Prestar</button>
+</div>
+
+
+<!-- ===== DEVOLUCIONES ===== -->
+<div class="card">
+<h2>Registrar Devolución</h2>
+<input id="prestamoIdDevolver" placeholder="ID Préstamo">
+<button onclick="registrarDevolucion()">Devolver</button>
 </div>
 
 </div>
 
 <script>
 
-function crearUsuario(){
-fetch("http://localhost:3000/users",{
+function crearSocio(){
+fetch("http://localhost:3000/socios",{
 method:"POST",
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
-name:name.value,
-email:email.value
+nombre:nombre.value,
+email:email.value,
+telefono:telefono.value
 })
-}).then(r=>r.json()).then(d=>alert("ID Usuario: "+d.id))
+}).then(r=>r.json()).then(d=>alert("Socio ID: "+d.id))
+}
+
+function consultarSocio(){
+fetch("http://localhost:3000/socios/"+socioId.value)
+.then(r=>r.json())
+.then(d=>alert(JSON.stringify(d,null,2)))
 }
 
 function crearLibro(){
-fetch("http://localhost:3000/books",{
+fetch("http://localhost:3000/libros",{
 method:"POST",
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
-title:title.value,
-genre:genre.value
+titulo:titulo.value,
+autor:autor.value,
+genero:genero.value
 })
-}).then(r=>r.json()).then(d=>alert("ID Libro: "+d.id))
+}).then(r=>r.json()).then(d=>alert("Libro ID: "+d.id))
 }
 
-function prestamo(){
-fetch("http://localhost:3000/loans",{
+function consultarLibro(){
+fetch("http://localhost:3000/libros/"+libroId.value)
+.then(r=>r.json())
+.then(d=>alert(JSON.stringify(d,null,2)))
+}
+
+function crearPrestamo(){
+fetch("http://localhost:3000/prestamos",{
 method:"POST",
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
-userId:uid.value,
-bookId:bid.value,
-dueDate:date.value
+socioId:prestamoSocioId.value,
+libroId:prestamoLibroId.value,
+fechaLimite:fechaLimite.value
 })
-}).then(r=>r.json()).then(d=>alert("Prestamo ID: "+d.id))
+}).then(r=>r.json()).then(d=>alert("Préstamo ID: "+d.id))
+}
+
+function registrarDevolucion(){
+fetch("http://localhost:3000/devoluciones/"+prestamoIdDevolver.value,{
+method:"POST"
+})
+.then(r=>r.json())
+.then(d=>alert("Devolución registrada"))
 }
 
 </script>
+
 </body>
 </html>
