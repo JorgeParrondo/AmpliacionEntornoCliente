@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+
+<h1>Biblioteca</h1>
+
+<div class="card">
+<h2>Alta Usuario</h2>
+<input id="name" placeholder="Nombre">
+<input id="email" placeholder="Email">
+<button onclick="crearUsuario()">Crear Usuario</button>
+</div>
+
+<div class="card">
+<h2>Alta Libro</h2>
+<input id="title" placeholder="Titulo">
+<input id="genre" placeholder="Genero">
+<button onclick="crearLibro()">Crear Libro</button>
+</div>
+
+<div class="card">
+<h2>Registrar Prestamo</h2>
+<input id="uid" placeholder="ID Usuario">
+<input id="bid" placeholder="ID Libro">
+<input id="date" type="date">
+<button onclick="prestamo()">Prestar</button>
+</div>
+
+</div>
+
+<script>
+
+function crearUsuario(){
+fetch("http://localhost:3000/users",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+name:name.value,
+email:email.value
+})
+}).then(r=>r.json()).then(d=>alert("ID Usuario: "+d.id))
+}
+
+function crearLibro(){
+fetch("http://localhost:3000/books",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+title:title.value,
+genre:genre.value
+})
+}).then(r=>r.json()).then(d=>alert("ID Libro: "+d.id))
+}
+
+function prestamo(){
+fetch("http://localhost:3000/loans",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+userId:uid.value,
+bookId:bid.value,
+dueDate:date.value
+})
+}).then(r=>r.json()).then(d=>alert("Prestamo ID: "+d.id))
+}
+
+</script>
+</body>
+</html>

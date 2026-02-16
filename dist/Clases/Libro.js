@@ -1,5 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Libro = void 0;
 //Clase libro con su constructor
-export class Libro {
+class Libro {
     constructor(id, titulo, autor, genero, disponible) {
         this.id = id;
         this.titulo = titulo;
@@ -8,4 +11,4 @@ export class Libro {
         this.disponible = disponible;
     }
 }
-//# sourceMappingURL=Libro.js.map
+exports.Libro = Libro;
