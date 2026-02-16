@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { db, initDB } from './db';
 import { Socio } from '../Clases/Socio';
 import { Libro } from '../Clases/Libro';
@@ -6,6 +7,8 @@ import { Prestamo } from '../Clases/Prestamo';
 import { Devolucion } from '../Clases/Devolucion';
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
 initDB();
