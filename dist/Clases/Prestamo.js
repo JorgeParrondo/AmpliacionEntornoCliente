@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Prestamo = void 0;
-//Relaciona las clases socio y libro y permite Consultar el estado del prestamo del libro(devuelto o no + vencido o no)
 class Prestamo {
     constructor(id, socio, libro, fechaPrestamo, fechaLimite, fechaDevolucion) {
         this.id = id;
@@ -10,6 +9,16 @@ class Prestamo {
         this.fechaPrestamo = fechaPrestamo;
         this.fechaLimite = fechaLimite;
         this.fechaDevolucion = fechaDevolucion;
+    }
+    obtenerEstado() {
+        if (this.fechaDevolucion) {
+            return "DEVUELTO";
+        }
+        const hoy = new Date();
+        if (hoy > this.fechaLimite) {
+            return "VENCIDO";
+        }
+        return "NO_VENCIDO";
     }
 }
 exports.Prestamo = Prestamo;

@@ -1,0 +1,60 @@
+CASOS DE PRUEBA - SISTEMA BIBLIOTECA
+
+1--> CREAR SOCIO CORRECTAMENTE
+
+Endpoint: POST /socios Datos: { “nombre”: “Carlos Gomez”, “email”:
+“carlos@test.com”, “telefono”: “3333” } Resultado esperado: - Se crea el
+socio - Devuelve objeto con id generado
+
+2--> CREAR SOCIO CON CAMPOS VACIOS
+
+Endpoint: POST /socios Datos incompletos Resultado esperado: - Error
+400 - Mensaje: “Todos los campos son obligatorios”
+
+3--> CONSULTAR SOCIO EXISTENTE
+
+Endpoint: GET /socios/1111 Resultado esperado: - Devuelve datos del
+socio Juan Pérez
+
+4--> CONSULTAR SOCIO INEXISTENTE
+
+Endpoint: GET /socios/9999 Resultado esperado: - Error 404 - Mensaje:
+“No encontrado”
+
+5--> CREAR LIBRO
+
+Endpoint: POST /libros Datos: { “titulo”: “Nuevo Libro”, “genero”:
+“Novela” } Resultado esperado: - Libro creado - Disponible = true
+
+6--> CONSULTAR LIBROS POR GENERO
+
+Endpoint: GET /libros/genero/Novela Resultado esperado: - Lista de
+libros del género Novela
+
+7--> VER DISPONIBILIDAD DE LIBRO
+
+Endpoint: GET /libros/disponible/El Quijote Resultado esperado: - Indica
+si está disponible
+
+8--> CREAR PRESTAMO CORRECTO
+
+Endpoint: POST /prestamos Datos: { “telefono”: “1111”, “titulo”: “El
+Quijote”, “fechaLimite”: “2026-03-01” } Resultado esperado: - Se crea
+préstamo - Libro pasa a no disponible
+
+9--> INTENTAR PRESTAR LIBRO NO DISPONIBLE
+
+Endpoint: POST /prestamos Resultado esperado: - Error 400 - Mensaje:
+“Libro no disponible”
+
+10--> VER PRESTAMOS DE UN SOCIO
+
+Endpoint: GET /prestamos/1111 Resultado esperado: - Devuelve lista de
+préstamos del socio
+
+11--> PRESTAMO VENCIDO (CASO DE PRUEBA AUTOMATICO)
+
+Resultado esperado: - Existe préstamo cuya fechaLimite es menor a la
+fecha actual - Permite verificar lógica de vencimiento
+
+FIN DE CASOS DE PRUEBA

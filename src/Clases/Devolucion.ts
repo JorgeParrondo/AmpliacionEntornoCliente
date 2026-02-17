@@ -1,11 +1,9 @@
-import {Prestamo} from "./Prestamo";
-//Para consultar las devoluciones
+import { Prestamo } from "./Prestamo";
+
 export class Devolucion {
-
-    constructor(
-        public id:number,
-        public prestamo:Prestamo,
-        public fecha:Date
-    ){}
-
+  constructor(
+    public id: number,
+    public prestamo: Prestamo,
+    public fecha: Date
+  ) {}
 }

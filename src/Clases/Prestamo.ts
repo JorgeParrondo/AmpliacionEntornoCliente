@@ -1,16 +1,29 @@
-import {Socio} from "./Socio";
-import {Libro} from "./Libro";
+import { Socio } from "./Socio";
+import { Libro } from "./Libro";
+import { EstadoPrestamo } from "../Tipos/EstadoPrestamo";
 
-//Relaciona las clases socio y libro y permite Consultar el estado del prestamo del libro(devuelto o no + vencido o no)
 export class Prestamo {
+  constructor(
+    public id: number,
+    public socio: Socio,
+    public libro: Libro,
+    public fechaPrestamo: Date,
+    public fechaLimite: Date,
+    public fechaDevolucion: Date | null
+  ) {}
 
-    constructor(
-        public id:number,
-        public socio:Socio,
-        public libro:Libro,
-        public fechaPrestamo:Date,
-        public fechaLimite:Date,
-        public fechaDevolucion:Date | null
-    ){}
+  obtenerEstado(): EstadoPrestamo {
 
+    if (this.fechaDevolucion) {
+      return "DEVUELTO";
+    }
+
+    const hoy = new Date();
+
+    if (hoy > this.fechaLimite) {
+      return "VENCIDO";
+    }
+
+    return "NO_VENCIDO";
+  }
 }

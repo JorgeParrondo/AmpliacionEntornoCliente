@@ -1,215 +1,373 @@
-import express from 'express';
-import cors from 'cors';
-import { db, initDB } from './db';
-import { Socio } from '../Clases/Socio';
-import { Libro } from '../Clases/Libro';
-import { Prestamo } from '../Clases/Prestamo';
-import { Devolucion } from '../Clases/Devolucion';
+/* =====================================================
+   IMPORTACIONES
+===================================================== */
+
+// Framework principal para crear el servidor HTTP
+import express from "express";
+
+// Permite que el frontend pueda hacer peticiones al backend
+import cors from "cors";
+
+// Base de datos SQLite y función de inicialización
+import { db, initDB } from "./db";
+
+// Clases del modelo
+import { Socio } from "../Clases/Socio";
+import { Libro } from "../Clases/Libro";
+import { Prestamo } from "../Clases/Prestamo";
+
+// Para servir archivos estáticos (HTML)
+import path from "path";
+
+/* =====================================================
+   CONFIGURACIÓN INICIAL DEL SERVIDOR
+===================================================== */
 
 const app = express();
 
+// Habilita CORS
 app.use(cors());
+
+// Permite recibir JSON en las peticiones
 app.use(express.json());
 
+// Sirve archivos estáticos (por ejemplo index.html)
+app.use(express.static(path.join(__dirname, "../../")));
+
+// Inicializa la base de datos y crea tablas si no existen
 initDB();
 
+/* =====================================================
+   FUNCIÓN AUXILIAR PARA RESPUESTAS DE ERROR
+   Centraliza el manejo de errores para evitar repetir código
+===================================================== */
 
-// =====================
-//      SOCIOS
-// =====================
+function handleError(res: any, error: any, status = 500) {
+  return res.status(status).json({
+    error: true,
+    message: error?.message || error
+  });
+}
 
-app.post('/socios', (req, res) => {
+/* =====================================================
+   CREAR SOCIO
+   Endpoint: POST /socios
+   Recibe: nombre, email, telefono
+   Inserta un nuevo socio en la base de datos
+===================================================== */
 
+app.post("/socios", async (req, res) => {
+  try {
     const { nombre, email, telefono } = req.body;
 
-    if (!nombre || !email || !telefono)
-        return res.status(400).send("Datos incompletos");
+    // Validación básica
+    if (!nombre || !email || !telefono) {
+      return handleError(res, "Todos los campos son obligatorios", 400);
+    }
 
+    // Inserta en la tabla users
     db.run(
-        'INSERT INTO users(name,email) VALUES(?,?)',
-        [nombre, email],
-        function (err) {
+      "INSERT INTO users(nombre,email,telefono) VALUES(?,?,?)",
+      [nombre, email, telefono],
+      function (err) {
 
-            if (err) return res.status(500).send(err);
+        if (err) return handleError(res, err, 400);
 
-            const socio = new Socio(this.lastID, nombre, email, telefono);
-            res.send(socio);
-        }
+        // Se crea el objeto Socio con el id generado
+        const socio = new Socio(this.lastID, nombre, email, telefono);
+
+        return res.json(socio);
+      }
     );
+
+  } catch (error) {
+    return handleError(res, error);
+  }
 });
 
-app.get('/socios/:id', (req, res) => {
+/* =====================================================
+   MODIFICAR SOCIO
+   Endpoint: PUT /socios/:telefono
+   Modifica nombre y email de un socio existente
+===================================================== */
 
-    db.get('SELECT * FROM users WHERE id=?',
-        [req.params.id],
-        (err, row: any) => {
+app.put("/socios/:telefono", async (req, res) => {
+  try {
+    const { nombre, email } = req.body;
+    const { telefono } = req.params;
 
-            if (!row) return res.status(404).send("Socio no encontrado");
-
-            const socio = new Socio(row.id, row.name, row.email, "");
-            res.send(socio);
-        });
-});
-
-
-// =====================
-//      LIBROS
-// =====================
-
-app.post('/libros', (req, res) => {
-
-    const { titulo, autor, genero } = req.body;
+    if (!nombre || !email) {
+      return handleError(res, "Nombre y email son obligatorios", 400);
+    }
 
     db.run(
-        'INSERT INTO books(title,genre,available) VALUES(?,?,1)',
-        [titulo, genero],
-        function (err) {
+      "UPDATE users SET nombre=?, email=? WHERE telefono=?",
+      [nombre, email, telefono],
+      function (err) {
 
-            if (err) return res.status(500).send(err);
+        if (err) return handleError(res, err);
 
-            const libro = new Libro(this.lastID, titulo, autor, genero, true);
-            res.send(libro);
-        });
+        if (this.changes === 0)
+          return handleError(res, "Socio no encontrado", 404);
+
+        return res.json({ message: "Socio actualizado correctamente" });
+      }
+    );
+
+  } catch (error) {
+    return handleError(res, error);
+  }
 });
 
-app.get('/libros/:id', (req, res) => {
+/* =====================================================
+   CONSULTAR SOCIO
+   Endpoint: GET /socios/:telefono
+   Devuelve los datos de un socio por teléfono
+===================================================== */
 
-    db.get('SELECT * FROM books WHERE id=?',
-        [req.params.id],
-        (err, row: any) => {
+app.get("/socios/:telefono", async (req, res) => {
+  try {
 
-            if (!row) return res.status(404).send("Libro no encontrado");
+    db.get(
+      "SELECT * FROM users WHERE telefono=?",
+      [req.params.telefono],
+      function (err, row: any) {
 
-            const libro = new Libro(
-                row.id,
-                row.title,
-                "",
-                row.genre,
-                row.available === 1
-            );
+        if (err) return handleError(res, err);
 
-            res.send(libro);
-        });
+        if (!row) return handleError(res, "No encontrado", 404);
+
+        const socio = new Socio(row.id, row.nombre, row.email, row.telefono);
+
+        return res.json(socio);
+      }
+    );
+
+  } catch (error) {
+    return handleError(res, error);
+  }
 });
 
+/* =====================================================
+   CREAR LIBRO
+   Endpoint: POST /libros
+   Crea un libro nuevo y lo marca como disponible
+===================================================== */
 
-// =====================
-//      PRESTAMOS
-// =====================
+app.post("/libros", async (req, res) => {
+  try {
+    const { titulo, genero } = req.body;
 
-app.post('/prestamos', (req, res) => {
+    if (!titulo || !genero) {
+      return handleError(res, "Titulo y genero son obligatorios", 400);
+    }
 
-    const { socioId, libroId, fechaLimite } = req.body;
+    db.run(
+      "INSERT INTO books(titulo,genero,available) VALUES(?,?,1)",
+      [titulo, genero],
+      function (err) {
 
-    db.get('SELECT * FROM users WHERE id=?', [socioId], (e1, socioRow: any) => {
+        if (err) return handleError(res, err, 400);
 
-        if (!socioRow) return res.status(404).send("Socio no encontrado");
+        const libro = new Libro(this.lastID, titulo, genero, true);
 
-        const socio = new Socio(socioRow.id, socioRow.name, socioRow.email, "");
+        return res.json(libro);
+      }
+    );
 
-        db.get('SELECT * FROM books WHERE id=?', [libroId], (e2, libroRow: any) => {
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
 
-            if (!libroRow) return res.status(404).send("Libro no encontrado");
+/* =====================================================
+   CONSULTAR LIBROS POR GÉNERO
+   Endpoint: GET /libros/genero/:genero
+===================================================== */
 
-            if (libroRow.available === 0)
-                return res.status(400).send("Libro no disponible");
+app.get("/libros/genero/:genero", async (req, res) => {
+  try {
 
-            const libro = new Libro(
-                libroRow.id,
-                libroRow.title,
-                "",
-                libroRow.genre,
-                false
+    db.all(
+      "SELECT * FROM books WHERE genero=?",
+      [req.params.genero],
+      function (err, rows: any[]) {
+
+        if (err) return handleError(res, err);
+
+        const libros = rows.map(
+          row => new Libro(row.id, row.titulo, row.genero, row.available === 1)
+        );
+
+        return res.json(libros);
+      }
+    );
+
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+/* =====================================================
+   CONSULTAR DISPONIBILIDAD DE UN LIBRO
+   Endpoint: GET /libros/disponible/:titulo
+===================================================== */
+
+app.get("/libros/disponible/:titulo", async (req, res) => {
+  try {
+
+    db.get(
+      "SELECT * FROM books WHERE titulo=?",
+      [req.params.titulo],
+      function (err, row: any) {
+
+        if (err) return handleError(res, err);
+
+        if (!row) return handleError(res, "Libro no encontrado", 404);
+
+        return res.json({
+          titulo: row.titulo,
+          disponible: row.available === 1
+        });
+      }
+    );
+
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+/* =====================================================
+   CREAR PRÉSTAMO
+   Endpoint: POST /prestamos
+   Verifica socio y libro
+   Si el libro está disponible:
+   - Crea el préstamo
+   - Marca el libro como no disponible
+===================================================== */
+
+app.post("/prestamos", async (req, res) => {
+  try {
+
+    const { telefono, titulo, fechaLimite } = req.body;
+
+    if (!telefono || !titulo || !fechaLimite) {
+      return handleError(res, "Datos incompletos", 400);
+    }
+
+    // Buscar socio
+    db.get("SELECT * FROM users WHERE telefono=?", [telefono], function (e1, user: any) {
+
+      if (e1) return handleError(res, e1);
+      if (!user) return handleError(res, "Socio no encontrado", 404);
+
+      // Buscar libro
+      db.get("SELECT * FROM books WHERE titulo=?", [titulo], function (e2, book: any) {
+
+        if (e2) return handleError(res, e2);
+        if (!book) return handleError(res, "Libro no encontrado", 404);
+
+        if (book.available === 0)
+          return handleError(res, "Libro no disponible", 400);
+
+        const fechaPrestamo = new Date();
+
+        db.run(
+          `INSERT INTO loans(userId,bookId,fechaPrestamo,fechaLimite,fechaDevolucion)
+           VALUES(?,?,?,?,NULL)`,
+          [
+            user.id,
+            book.id,
+            fechaPrestamo.toISOString(),
+            new Date(fechaLimite).toISOString()
+          ],
+          function (err) {
+
+            if (err) return handleError(res, err);
+
+            // Marcar libro como no disponible
+            db.run("UPDATE books SET available=0 WHERE id=?", [book.id]);
+
+            const prestamo = new Prestamo(
+              this.lastID,
+              user.id,
+              book.id,
+              fechaPrestamo,
+              new Date(fechaLimite),
+              null
             );
 
-            const fechaPrestamo = new Date();
+            return res.json(prestamo);
+          }
+        );
 
-            db.run(
-                `INSERT INTO loans(userId,bookId,fechaPrestamo,fechaLimite,fechaDevolucion)
-                 VALUES(?,?,?,?,NULL)`,
-                [socioId, libroId, fechaPrestamo.toISOString(), fechaLimite],
-                function (err) {
-
-                    db.run('UPDATE books SET available=0 WHERE id=?', [libroId]);
-
-                    const prestamo = new Prestamo(
-                        this.lastID,
-                        socio,
-                        libro,
-                        fechaPrestamo,
-                        new Date(fechaLimite),
-                        null
-                    );
-
-                    res.send(prestamo);
-                });
-        });
+      });
     });
+
+  } catch (error) {
+    return handleError(res, error);
+  }
 });
 
+/* =====================================================
+   VER PRÉSTAMOS DE UN SOCIO
+   Endpoint: GET /prestamos/:telefono
+   Devuelve todos los préstamos de un usuario
+===================================================== */
 
-// =====================
-//      DEVOLUCION
-// =====================
+app.get("/prestamos/:telefono", async (req, res) => {
+  try {
 
-app.post('/devoluciones/:id', (req, res) => {
+    db.get("SELECT * FROM users WHERE telefono=?", [req.params.telefono], function (e1, user: any) {
 
-    const fechaDevolucion = new Date();
+      if (e1) return handleError(res, e1);
+      if (!user) return handleError(res, "Socio no encontrado", 404);
 
-    db.get('SELECT * FROM loans WHERE id=?',
-        [req.params.id],
-        (err, loanRow: any) => {
+      db.all("SELECT * FROM loans WHERE userId=?", [user.id], function (e2, loans: any[]) {
 
-            if (!loanRow) return res.status(404).send("Prestamo no encontrado");
+        if (e2) return handleError(res, e2);
 
-            db.get('SELECT * FROM users WHERE id=?',
-                [loanRow.userId],
-                (e1, socioRow: any) => {
+        const prestamos = loans.map(
+          loan =>
+            new Prestamo(
+              loan.id,
+              loan.userId,
+              loan.bookId,
+              loan.fechaPrestamo,
+              loan.fechaLimite,
+              loan.fechaDevolucion
+            )
+        );
 
-                    db.get('SELECT * FROM books WHERE id=?',
-                        [loanRow.bookId],
-                        (e2, libroRow: any) => {
+        return res.json(prestamos);
+      });
 
-                            const socio = new Socio(socioRow.id, socioRow.name, socioRow.email, "");
+    });
 
-                            const libro = new Libro(
-                                libroRow.id,
-                                libroRow.title,
-                                "",
-                                libroRow.genre,
-                                true
-                            );
-
-                            const prestamo = new Prestamo(
-                                loanRow.id,
-                                socio,
-                                libro,
-                                new Date(loanRow.fechaPrestamo),
-                                new Date(loanRow.fechaLimite),
-                                fechaDevolucion
-                            );
-
-                            db.run(
-                                'UPDATE loans SET fechaDevolucion=? WHERE id=?',
-                                [fechaDevolucion.toISOString(), req.params.id]
-                            );
-
-                            db.run(
-                                'UPDATE books SET available=1 WHERE id=?',
-                                [libroRow.id]
-                            );
-
-                            const devolucion = new Devolucion(
-                                Date.now(),
-                                prestamo,
-                                fechaDevolucion
-                            );
-
-                            res.send(devolucion);
-                        });
-                });
-        });
+  } catch (error) {
+    return handleError(res, error);
+  }
 });
 
+/* =====================================================
+   MIDDLEWARE GLOBAL DE ERRORES
+   Captura cualquier error no manejado
+===================================================== */
 
-app.listen(3000, () => console.log("Server running"));
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error("Error no controlado:", err);
+
+  res.status(500).json({
+    error: true,
+    message: err.message || "Error interno del servidor"
+  });
+});
+
+/* =====================================================
+   INICIO DEL SERVIDOR
+===================================================== */
+
+app.listen(3000, () => {
+  console.log("Servidor funcionando en http://localhost:3000");
+});
+

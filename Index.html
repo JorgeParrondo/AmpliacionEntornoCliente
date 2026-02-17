@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Gestión Biblioteca</title>
 <link rel="stylesheet" href="css/styles.css">
+
 </head>
 
 <body>
@@ -13,146 +14,103 @@
 
 <h1>Sistema de Gestión de Biblioteca</h1>
 
-<!-- ===================== -->
-<!--        SOCIOS         -->
-<!-- ===================== -->
-
 <section class="card">
-<h2> Gestión de Socios</h2>
+<h2>Gestión de Socios</h2>
 
 <fieldset>
 <legend>Alta de Socio</legend>
 
-<label for="nombre">Nombre</label>
-<input type="text" id="nombre" placeholder="Ej: Juan Pérez">
+<input type="text" id="nombre" placeholder="Nombre">
+<input type="email" id="email" placeholder="Email">
+<input type="tel" id="telefono" placeholder="Teléfono">
 
-<label for="email">Email</label>
-<input type="email" id="email" placeholder="Ej: juan@email.com">
-
-<label for="telefono">Teléfono</label>
-<input type="tel" id="telefono" placeholder="Ej: 600111111">
-
-<button type="button">Crear Socio</button>
+<button onclick="crearSocio()">Crear Socio</button>
 </fieldset>
-
 
 <fieldset>
 <legend>Modificar Socio</legend>
 
-<label for="telefonoModificar">Teléfono del socio</label>
-<input type="tel" id="telefonoModificar" placeholder="Teléfono registrado">
+<input type="tel" id="telefonoModificar" placeholder="Teléfono">
+<input type="text" id="nuevoNombre" placeholder="Nuevo nombre">
+<input type="email" id="nuevoEmail" placeholder="Nuevo email">
 
-<label for="nuevoNombre">Nuevo Nombre</label>
-<input type="text" id="nuevoNombre">
-
-<label for="nuevoEmail">Nuevo Email</label>
-<input type="email" id="nuevoEmail">
-
-<button type="button">Modificar Datos</button>
+<button onclick="modificarSocio()">Modificar</button>
 </fieldset>
 
-
 <fieldset>
-<legend>Consultar Socio por Teléfono</legend>
+<legend>Consultar Socio</legend>
 
-<label for="telefonoConsulta">Teléfono</label>
-<input type="tel" id="telefonoConsulta">
-
-<button type="button">Consultar</button>
+<input type="tel" id="telefonoConsulta" placeholder="Teléfono">
+<button onclick="consultarSocio()">Consultar</button>
 </fieldset>
 
 </section>
 
 
 
-<!-- ===================== -->
-<!--        LIBROS         -->
-<!-- ===================== -->
-
 <section class="card">
-<h2> Gestión de Libros</h2>
+<h2>Gestión de Libros</h2>
 
 <fieldset>
-<legend>Alta de Libro</legend>
+<legend>Alta Libro</legend>
 
-<label for="titulo">Título</label>
-<input type="text" id="titulo">
+<input type="text" id="titulo" placeholder="Título">
+<input type="text" id="genero" placeholder="Género">
 
-<label for="genero">Género</label>
-<input type="text" id="genero">
-
-<button type="button">Crear Libro</button>
+<button onclick="crearLibro()">Crear Libro</button>
 </fieldset>
 
-
 <fieldset>
-<legend>Consultar Libros por Género</legend>
+<legend>Libros por Género</legend>
 
-<label for="generoConsulta">Género</label>
-<input type="text" id="generoConsulta">
-
-<button type="button">Buscar Libros</button>
+<input type="text" id="generoConsulta" placeholder="Género">
+<button onclick="buscarPorGenero()">Buscar</button>
 </fieldset>
 
-
 <fieldset>
-<legend>Consultar Disponibilidad</legend>
+<legend>Disponibilidad</legend>
 
-<label for="tituloDisponibilidad">Título del Libro</label>
-<input type="text" id="tituloDisponibilidad">
+<input type="text" id="tituloDisponibilidad" placeholder="Título">
+<button onclick="verDisponibilidad()">Consultar</button>
+</fieldset>
+<fieldset>
+  <legend>Devolver Libro</legend>
 
-<button type="button">Ver Disponibilidad</button>
+  <input type="tel" id="telefonoDevolucion" placeholder="Teléfono socio">
+  <input type="text" id="libroDevolucion" placeholder="Título libro">
+
+  <button onclick="devolverLibro()">Devolver</button>
 </fieldset>
 
 </section>
 
 
 
-<!-- ===================== -->
-<!--       PRÉSTAMOS       -->
-<!-- ===================== -->
 
 <section class="card">
-<h2> Gestión de Préstamos</h2>
+<h2>Gestión de Préstamos</h2>
 
 <fieldset>
 <legend>Registrar Préstamo</legend>
 
-<label for="telefonoPrestamo">Teléfono del Socio</label>
-<input type="tel" id="telefonoPrestamo">
-
-<label for="libroPrestamo">Título del Libro</label>
-<input type="text" id="libroPrestamo">
-
-<label for="fechaLimite">Fecha Límite</label>
+<input type="tel" id="telefonoPrestamo" placeholder="Teléfono socio">
+<input type="text" id="libroPrestamo" placeholder="Título libro">
 <input type="date" id="fechaLimite">
 
-<button type="button">Registrar Préstamo</button>
+<button onclick="crearPrestamo()">Prestar</button>
 </fieldset>
 
-
 <fieldset>
-<legend>Consultar Préstamos de un Socio</legend>
+<legend>Consultar Préstamos</legend>
 
-<label for="telefonoPrestamos">Teléfono</label>
-<input type="tel" id="telefonoPrestamos">
-
-<button type="button">Ver Préstamos</button>
-
-<p class="info">
-Se mostrarán:
-<br>• DEVUELTOS
-<br>• NO DEVUELTOS
-<br>• VENCIDOS
-<br>• NO VENCIDOS
-</p>
-
+<input type="tel" id="telefonoPrestamos" placeholder="Teléfono">
+<button onclick="verPrestamos()">Consultar</button>
 </fieldset>
 
 </section>
 
-
 </main>
+<script src="js/app.js"></script>
 
 </body>
 </html>
