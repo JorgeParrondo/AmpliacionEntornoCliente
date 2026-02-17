@@ -245,6 +245,73 @@ app.get("/prestamos/:telefono", async (req, res) => {
     }
 });
 /* =====================================================
+   DEVOLVER LIBRO
+===================================================== */
+app.post("/devoluciones", (req, res) => {
+    try {
+        const { telefono, titulo } = req.body;
+        if (!telefono || !titulo) {
+            return res.status(400).json({
+                error: true,
+                message: "Datos incompletos"
+            });
+        }
+        db_1.db.get("SELECT * FROM users WHERE telefono=?", [telefono], (errUser, user) => {
+            if (errUser) {
+                return res.status(500).json({ error: true, message: errUser.message });
+            }
+            if (!user) {
+                return res.status(404).json({
+                    error: true,
+                    message: "Socio no encontrado"
+                });
+            }
+            db_1.db.get("SELECT * FROM books WHERE titulo=?", [titulo], (errBook, book) => {
+                if (errBook) {
+                    return res.status(500).json({ error: true, message: errBook.message });
+                }
+                if (!book) {
+                    return res.status(404).json({
+                        error: true,
+                        message: "Libro no encontrado"
+                    });
+                }
+                db_1.db.get(`SELECT * FROM loans 
+               WHERE userId=? AND bookId=? AND fechaDevolucion IS NULL`, [user.id, book.id], (errLoan, loan) => {
+                    if (errLoan) {
+                        return res.status(500).json({ error: true, message: errLoan.message });
+                    }
+                    if (!loan) {
+                        return res.status(400).json({
+                            error: true,
+                            message: "No existe préstamo activo"
+                        });
+                    }
+                    const fechaDevolucion = new Date().toISOString();
+                    db_1.db.run("UPDATE loans SET fechaDevolucion=? WHERE id=?", [fechaDevolucion, loan.id], function (errUpdate) {
+                        if (errUpdate) {
+                            return res.status(500).json({
+                                error: true,
+                                message: errUpdate.message
+                            });
+                        }
+                        db_1.db.run("UPDATE books SET available=1 WHERE id=?", [book.id]);
+                        return res.json({
+                            message: "Libro devuelto correctamente"
+                        });
+                    });
+                });
+            });
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: error.message
+        });
+    }
+});
+/* =====================================================
    MIDDLEWARE GLOBAL DE ERRORES
    Captura cualquier error no manejado
 ===================================================== */

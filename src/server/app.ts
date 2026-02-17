@@ -348,6 +348,108 @@ app.get("/prestamos/:telefono", async (req, res) => {
     return handleError(res, error);
   }
 });
+/* =====================================================
+   DEVOLVER LIBRO
+===================================================== */
+
+app.post("/devoluciones", (req, res) => {
+  try {
+    const { telefono, titulo } = req.body;
+
+    if (!telefono || !titulo) {
+      return res.status(400).json({
+        error: true,
+        message: "Datos incompletos"
+      });
+    }
+
+    db.get(
+      "SELECT * FROM users WHERE telefono=?",
+      [telefono],
+      (errUser: any, user: any) => {
+
+        if (errUser) {
+          return res.status(500).json({ error: true, message: errUser.message });
+        }
+
+        if (!user) {
+          return res.status(404).json({
+            error: true,
+            message: "Socio no encontrado"
+          });
+        }
+
+        db.get(
+          "SELECT * FROM books WHERE titulo=?",
+          [titulo],
+          (errBook: any, book: any) => {
+
+            if (errBook) {
+              return res.status(500).json({ error: true, message: errBook.message });
+            }
+
+            if (!book) {
+              return res.status(404).json({
+                error: true,
+                message: "Libro no encontrado"
+              });
+            }
+
+            db.get(
+              `SELECT * FROM loans 
+               WHERE userId=? AND bookId=? AND fechaDevolucion IS NULL`,
+              [user.id, book.id],
+              (errLoan: any, loan: any) => {
+
+                if (errLoan) {
+                  return res.status(500).json({ error: true, message: errLoan.message });
+                }
+
+                if (!loan) {
+                  return res.status(400).json({
+                    error: true,
+                    message: "No existe préstamo activo"
+                  });
+                }
+
+                const fechaDevolucion = new Date().toISOString();
+
+                db.run(
+                  "UPDATE loans SET fechaDevolucion=? WHERE id=?",
+                  [fechaDevolucion, loan.id],
+                  function (errUpdate: any) {
+
+                    if (errUpdate) {
+                      return res.status(500).json({
+                        error: true,
+                        message: errUpdate.message
+                      });
+                    }
+
+                    db.run(
+                      "UPDATE books SET available=1 WHERE id=?",
+                      [book.id]
+                    );
+
+                    return res.json({
+                      message: "Libro devuelto correctamente"
+                    });
+                  }
+                );
+              }
+            );
+          }
+        );
+      }
+    );
+
+  } catch (error: any) {
+    return res.status(500).json({
+      error: true,
+      message: error.message
+    });
+  }
+});
 
 /* =====================================================
    MIDDLEWARE GLOBAL DE ERRORES
